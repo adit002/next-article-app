@@ -2,8 +2,11 @@
 
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/store/authStore'
 
 export default function Topbar() {
+  const { user } = useAuthStore()
+
   const pathname = usePathname().split('/')[1]
   const router = useRouter()
   return (
@@ -15,10 +18,10 @@ export default function Topbar() {
         className="flex items-center gap-2 cursor-pointer"
         onClick={() => router.push('/profile')}
       >
-        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-          J
+        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold capitalize">
+          {user?.username.charAt(0)}
         </div>
-        <div className="text-sm font-bold underline">James Dean</div>
+        <div className="text-sm font-bold underline">{user?.username}</div>
       </div>
     </header>
   )

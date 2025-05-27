@@ -1,13 +1,18 @@
-import Sidebar from '@/components/layout/Sidebar'
-import Topbar from '@/components/layout/Topbar'
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1 min-h-screen flex flex-col bg-[#f3f4f6]">
-        <Topbar />
-        <main className="p-6 flex-1">{children}</main>
-      </div>
-    </div>
-  )
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { getUser } from '@/lib/getUser'
+import ClientLayout from './ClientLayout'
+
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('token')?.value
+  if (!token) {
+    redirect('/login')
+  }
+  const user = await getUser()
+  if (user?.role !== 'Admin') {
+    redirect('/login')
+  }
+
+  return <ClientLayout user={user}>{children}</ClientLayout>
 }

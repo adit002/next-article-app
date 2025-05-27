@@ -54,6 +54,11 @@ export default function TextEditor({ value, onChange, error }: Props) {
       },
     },
   })
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value, false)
+    }
+  }, [value, editor])
 
   useEffect(() => {
     return () => {

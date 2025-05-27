@@ -13,6 +13,8 @@ type InputProps = {
   register?: UseFormRegisterReturn
   icon?: 'search'
   className?: string
+  value?: string
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 export default function Input({
@@ -24,6 +26,8 @@ export default function Input({
   register,
   icon,
   className = '',
+  value,
+  onChange,
 }: InputProps) {
   const [showPassword, setShowPassword] = useState(false)
   const isPassword = type === 'password'
@@ -48,6 +52,8 @@ export default function Input({
           id={name}
           type={inputType}
           placeholder={placeholder}
+          value={value}
+          onChange={onChange}
           {...register}
           className={`bg-white w-full px-4 py-2 rounded-md border ${
             error ? 'border-red-500' : 'border-gray-300'

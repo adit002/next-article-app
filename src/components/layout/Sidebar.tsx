@@ -8,12 +8,15 @@ import Image from 'next/image'
 import ConfirmModal from '../modal/Confirm'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/store/authStore'
 
 export default function Sidebar() {
+  const { logout, loading } = useAuthStore()
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    await logout()
     router.push('/login')
     setIsOpen(false)
   }
@@ -53,6 +56,7 @@ export default function Sidebar() {
         message="Are you sure want to logout?"
         onCancel={() => setIsOpen(false)}
         onConfirm={handleConfirm}
+        loading={loading}
       />
     </aside>
   )

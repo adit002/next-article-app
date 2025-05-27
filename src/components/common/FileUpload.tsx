@@ -3,14 +3,23 @@
 import { useRef, useState } from 'react'
 import Image from 'next/image'
 import { UseFormRegisterReturn } from 'react-hook-form'
+import { useEffect } from 'react'
 
 type FileUploadProps = {
   label?: string
   error?: string
   register: UseFormRegisterReturn
+  initialPreviewUrl?: string
+  resetKey?: number
 }
 
-export default function FileUpload({ label, error, register }: FileUploadProps) {
+export default function FileUpload({
+  label,
+  error,
+  register,
+  initialPreviewUrl,
+  resetKey,
+}: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
@@ -45,7 +54,15 @@ export default function FileUpload({ label, error, register }: FileUploadProps) 
       register.onChange(e)
     }
   }
+  useEffect(() => {
+    setPreviewUrl(null)
+  }, [resetKey, initialPreviewUrl])
 
+  useEffect(() => {
+    if (initialPreviewUrl) {
+      setPreviewUrl(initialPreviewUrl)
+    }
+  }, [initialPreviewUrl])
   return (
     <div>
       {label && <label className="block mb-2 text-sm font-medium text-gray-700">{label}</label>}

@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode, useEffect } from 'react'
+import Button from '../common/Button'
 
 type ConfirmModalProps = {
   isOpen: boolean
@@ -12,6 +13,7 @@ type ConfirmModalProps = {
   onConfirm?: () => void
   children?: ReactNode
   hideFooter?: boolean
+  loading?: boolean
 }
 
 export default function ConfirmModal({
@@ -24,6 +26,7 @@ export default function ConfirmModal({
   onConfirm,
   children,
   hideFooter = false,
+  loading,
 }: ConfirmModalProps) {
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto'
@@ -49,21 +52,19 @@ export default function ConfirmModal({
           <div className="flex justify-end gap-2">
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-100 transition"
+              className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-100 transition cursor-pointer"
             >
               {cancelText}
             </button>
             {onConfirm && (
-              <button
+              <Button
+                type="button"
+                variant={`${confirmText === 'Delete' ? 'danger' : 'primary'}`}
+                loading={loading}
                 onClick={onConfirm}
-                className={`px-4 py-2 text-sm ${
-                  confirmText === 'Delete'
-                    ? 'bg-red-600 hover:bg-red-500'
-                    : 'bg-blue-600 hover:bg-blue-500'
-                } text-white rounded-md transition`}
               >
                 {confirmText}
-              </button>
+              </Button>
             )}
           </div>
         )}
