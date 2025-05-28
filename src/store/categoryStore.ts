@@ -2,27 +2,6 @@ import { create } from 'zustand'
 import api from '@/lib/axios'
 import { AxiosError } from 'axios'
 
-interface CategoriesList {
-  id: string
-  userId: string
-  name: string
-  createdAt: string
-  updatedAt: string
-}
-
-interface CategoriesState {
-  loading: boolean
-  error: string | null
-  message: string | null
-  categoryDataList: CategoriesList[]
-  categoryDataListPage: number
-  categoryDataListData: number
-  categoryAdd: (payload: { name: string }) => Promise<void>
-  categoryEdit: (payload: { name: string }, id: string) => Promise<void>
-  categoryDelete: (id: string) => Promise<void>
-  categoryList: (page: number, search: string, limit?: number) => Promise<void>
-}
-
 export const useCategoriesState = create<CategoriesState>((set) => ({
   loading: false,
   error: null,

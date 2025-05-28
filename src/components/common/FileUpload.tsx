@@ -1,24 +1,25 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
-import { UseFormRegisterReturn } from 'react-hook-form'
-import { useEffect } from 'react'
+import { useUploadStore } from '@/store/uploadStore'
 
 type FileUploadProps = {
   label?: string
   error?: string
-  register: UseFormRegisterReturn
   initialPreviewUrl?: string
   resetKey?: number
+  value: File | string | null
+  onChange: (value: File | string | null) => void
 }
 
 export default function FileUpload({
   label,
   error,
-  register,
   initialPreviewUrl,
   resetKey,
+  value,
+  onChange,
 }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -29,40 +30,54 @@ export default function FileUpload({
 
   const handleDelete = () => {
     setPreviewUrl(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-      const syntheticEvent = {
-        target: {
-          name: register.name,
-          value: null,
-          files: null,
-        },
+    onChange(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0]
+
+    if (!selectedFile) return
+
+    if (!['image/jpeg', 'image/png'].includes(selectedFile.type)) {
+      alert('Please select a JPG or PNG image.')
+      e.target.value = ''
+      onChange(null)
+      return
+    }
+
+    const tempUrl = URL.createObjectURL(selectedFile)
+    setPreviewUrl(tempUrl)
+
+    try {
+      const uploadedUrl = await useUploadStore.getState().uploadFileToS3(selectedFile)
+
+      if (!uploadedUrl || typeof uploadedUrl !== 'string') {
+        throw new Error('Upload did not return a valid URL')
       }
-      register.onChange(syntheticEvent)
+
+      onChange(uploadedUrl)
+    } catch (err) {
+      alert('Upload failed')
+      console.error(err)
+      onChange(null)
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (selectedFile && ['image/jpeg', 'image/png'].includes(selectedFile.type)) {
-      const url = URL.createObjectURL(selectedFile)
-      setPreviewUrl(url)
-      register.onChange(e)
-    } else {
-      alert('Please select a JPG or PNG image.')
-      e.target.value = ''
-      register.onChange(e)
-    }
-  }
   useEffect(() => {
-    setPreviewUrl(null)
-  }, [resetKey, initialPreviewUrl])
+    if (typeof value === 'string') {
+      setPreviewUrl(value)
+    } else if (!value) {
+      setPreviewUrl(null)
+    }
+  }, [value, resetKey])
 
   useEffect(() => {
     if (initialPreviewUrl) {
       setPreviewUrl(initialPreviewUrl)
     }
   }, [initialPreviewUrl])
+
   return (
     <div>
       {label && <label className="block mb-2 text-sm font-medium text-gray-700">{label}</label>}
@@ -88,7 +103,7 @@ export default function FileUpload({
                 />
               </svg>
               <p className="text-sm font-medium text-gray-600">Click to select files</p>
-              <p className="text-xs text-gray-400">Support File Type : jpg or png</p>
+              <p className="text-xs text-gray-400">Support File Type: jpg or png</p>
             </div>
           </div>
         ) : (
@@ -114,13 +129,8 @@ export default function FileUpload({
         <input
           type="file"
           accept=".jpg,.jpeg,.png"
-          ref={(e) => {
-            fileInputRef.current = e
-            register.ref(e)
-          }}
-          name={register.name}
+          ref={fileInputRef}
           onChange={handleFileChange}
-          onBlur={register.onBlur}
           className="hidden"
         />
       </div>

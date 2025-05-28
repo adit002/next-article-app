@@ -16,38 +16,11 @@ import { formatDateTime } from '@/utils/formatDate'
 import { useCategoriesState } from '@/store/categoryStore'
 import Link from 'next/link'
 
-interface ArticleList {
-  id: string
-  userId: string
-  categoryId: string
-  title: string
-  content: string
-  imageUrl: string
-  createdAt: string
-  updatedAt: string
-  category: Category
-  user: User
-}
-
-interface Category {
-  id: string
-  userId: string
-  name: string
-  createdAt: string
-  updatedAt: string
-}
-
-interface User {
-  id: string
-  username: string
-}
-
 export default function ArticlePage() {
   const router = useRouter()
-  const [categoryOptions, setCategoryOptions] = useState<{ value: string; label: string }[]>([])
+  const [categoryOptions, setCategoryOptions] = useState<OptionSelection[]>([])
   const [isOpen, setIsOpen] = useState(false)
-  const { categoryDataList } = useCategoriesState()
-  const fetchCategories = useCategoriesState((state) => state.categoryList)
+  const { categoryDataList, categoryList } = useCategoriesState()
   const getState = useArticlesState.getState
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const searchParams = useSearchParams()
@@ -55,13 +28,18 @@ export default function ArticlePage() {
   const [dataDetailArticles, setDataDetailArticles] = useState<ArticleList>()
   const [debouncedSearch, setDebouncedSearch] = useState(search)
   const page = Number(searchParams.get('page')) || 1
-  const { articlesDataList, articlesDataListPage, articlesDataListData, articlesDelete } =
-    useArticlesState()
-  const fetchArticles = useArticlesState((state) => state.articlesList)
+  const {
+    articlesDataList,
+    articlesDataListPage,
+    articlesDataListData,
+    articlesDelete,
+    articlesList,
+  } = useArticlesState()
+
   const handleConfirm = async () => {
     await articlesDelete(dataDetailArticles!.id)
     toastMessageSetting()
-    await fetchArticles(page, debouncedSearch)
+    await articlesList(page, debouncedSearch)
   }
 
   const clickAction = (data: ArticleList) => {
@@ -76,6 +54,7 @@ export default function ArticlePage() {
     })
     setIsOpen(false)
   }
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search)
@@ -84,6 +63,7 @@ export default function ArticlePage() {
       clearTimeout(handler)
     }
   }, [search])
+
   useEffect(() => {
     setCategoryOptions(
       categoryDataList.map((item) => ({
@@ -92,13 +72,18 @@ export default function ArticlePage() {
       }))
     )
   }, [categoryDataList])
+
   useEffect(() => {
-    ;(async () => {
-      await fetchArticles(page, debouncedSearch)
+    const fetchData = async () => {
+      await Promise.all([
+        articlesList(page, debouncedSearch),
+        categoryList(page, debouncedSearch, 100),
+      ])
       toastMessageSetting()
-      await fetchCategories(page, debouncedSearch, 100)
-    })()
-  }, [fetchArticles, page, debouncedSearch])
+    }
+
+    fetchData()
+  }, [articlesList, categoryList, page, debouncedSearch])
 
   return (
     <div className="bg-[#f9fafb] border border-[#e3e8ef] rounded-xl pb-10">

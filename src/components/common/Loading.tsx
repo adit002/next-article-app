@@ -1,10 +1,5 @@
 import { Loader2 } from 'lucide-react'
 
-interface LoadingProps {
-  message?: string
-  fullScreen?: boolean
-}
-
 export default function Loading({ message = 'Loading...', fullScreen = false }: LoadingProps) {
   return (
     <div

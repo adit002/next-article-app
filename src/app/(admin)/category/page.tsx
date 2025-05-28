@@ -33,15 +33,26 @@ export default function CategoryPage() {
     categoryAdd,
     categoryEdit,
     categoryDelete,
+    categoryList,
   } = useCategoriesState()
-  const fetchCategories = useCategoriesState((state) => state.categoryList)
   const [isOpen, setIsOpen] = useState(false)
   const [modalData, setModalData] = useState({ title: '', confirmText: '', message: '' })
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  })
+
   const handleConfirm = async () => {
     await categoryDelete(dataDetailCategory!.id)
     toastMessageSetting()
-    fetchCategories(page, debouncedSearch)
+    categoryList(page, debouncedSearch)
   }
+
   const clickAction = (type: string, data: { id: string; name: string }) => {
     setIsOpen(!isOpen)
     switch (type) {
@@ -67,14 +78,6 @@ export default function CategoryPage() {
         break
     }
   }
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  })
 
   const onSubmit = async (data: FormData) => {
     if (modalData.title === 'Add Category') {
@@ -84,7 +87,7 @@ export default function CategoryPage() {
     }
 
     toastMessageSetting()
-    await fetchCategories(page, debouncedSearch)
+    await categoryList(page, debouncedSearch)
   }
 
   const toastMessageSetting = () => {
@@ -95,6 +98,7 @@ export default function CategoryPage() {
     })
     setIsOpen(false)
   }
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search)
@@ -103,12 +107,16 @@ export default function CategoryPage() {
       clearTimeout(handler)
     }
   }, [search])
+
   useEffect(() => {
-    ;(async () => {
-      await fetchCategories(page, debouncedSearch)
+    const fetchData = async () => {
+      await categoryList(page, debouncedSearch)
       toastMessageSetting()
-    })()
-  }, [fetchCategories, page, debouncedSearch])
+    }
+
+    fetchData()
+  }, [categoryList, page, debouncedSearch])
+
   return (
     <div className="bg-[#f9fafb] border border-[#e3e8ef] rounded-xl pb-10">
       <div className="p-6 border-b border-[#e3e8ef]">

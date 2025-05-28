@@ -2,47 +2,6 @@ import { create } from 'zustand'
 import api from '@/lib/axios'
 import { AxiosError } from 'axios'
 
-export interface ArticleList {
-  id: string
-  userId: string
-  categoryId: string
-  title: string
-  content: string
-  imageUrl: string
-  createdAt: string
-  updatedAt: string
-  category: Category
-  user: User
-}
-
-export interface Category {
-  id: string
-  userId: string
-  name: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface User {
-  id: string
-  username: string
-}
-
-interface ArticlesState {
-  loading: boolean
-  error: string | null
-  message: string | null
-  articlesDataList: ArticleList[]
-  articlesDataDetail: ArticleList | undefined
-  articlesDataListPage: number
-  articlesDataListData: number
-  articlesAdd: (payload: { name: string }) => Promise<void>
-  articlesEdit: (payload: { name: string }, id: string) => Promise<void>
-  articlesDelete: (id: string) => Promise<void>
-  articlesList: (page: number, search: string) => Promise<void>
-  articlesDetail: (id: string) => Promise<void>
-}
-
 export const useArticlesState = create<ArticlesState>((set) => ({
   loading: false,
   error: null,

@@ -3,13 +3,7 @@
 import ReactPaginate from 'react-paginate'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-type Props = {
-  pageCount: number
-  currentPage: number
-  basePath: string
-}
-
-export default function Pagination({ pageCount, currentPage, basePath }: Props) {
+export default function Pagination({ pageCount, currentPage, basePath }: PaginationProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 

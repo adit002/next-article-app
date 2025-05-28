@@ -27,6 +27,7 @@ export default function LoginPage() {
   const { login, loading } = useAuthStore()
   const getState = useAuthStore.getState
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+
   const {
     register,
     handleSubmit,

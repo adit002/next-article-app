@@ -17,31 +17,21 @@ import { useCategoriesState } from '@/store/categoryStore'
 
 const schema = z.object({
   file: z
-    .any()
-    .transform((val) => {
-      if (val instanceof FileList) return val[0]
-      return val
+    .string({
+      required_error: 'Please upload an image.',
     })
+    .trim()
+    .url({ message: 'Must be a valid image URL.' })
     .refine(
-      (file) => {
-        if (!file) return false
-
-        if (file instanceof File) {
-          const isValidType = ['image/jpeg', 'image/png'].includes(file.type)
-          const hasContent = file.size > 0
-          return isValidType && hasContent
-        }
-
-        if (typeof file === 'string') {
-          return file.startsWith('http') && file.trim() !== ''
-        }
-
-        return false
-      },
+      (url) =>
+        url.toLowerCase().endsWith('.jpg') ||
+        url.toLowerCase().endsWith('.jpeg') ||
+        url.toLowerCase().endsWith('.png'),
       {
-        message: 'Please enter picture',
+        message: 'Only JPG or PNG images are supported.',
       }
     ),
+
   title: z.string().min(1, 'Please enter title'),
   category: z.string().min(1, 'Please select category'),
   content: z.string().refine((val) => val.replace(/<[^>]+>/g, '').trim().length > 0, {
@@ -52,12 +42,13 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function CreateArticlePage() {
-  const params = useParams()
-  const id = params?.slug as string[] | undefined
-  const fetched = useRef(false)
-  const { categoryDataList } = useCategoriesState()
-  const fetchCategories = useCategoriesState((state) => state.categoryList)
+  const [categoryOptions, setCategoryOptions] = useState<OptionSelection[]>([])
   const [resetKey, setResetKey] = useState(0)
+  const params = useParams()
+  const id = params.slug as string[]
+  const fetched = useRef(false)
+  const { categoryDataList, categoryList } = useCategoriesState()
+  const { articlesDetail, articlesAdd, articlesEdit, articlesDataDetail } = useArticlesState()
   const router = useRouter()
   const {
     control,
@@ -69,51 +60,56 @@ export default function CreateArticlePage() {
     resolver: zodResolver(schema),
   })
 
-  const onSubmit = (data: FormData) => {
-    console.log('✅ Form submitted:', data)
+  const onSubmit = async (data: FormData) => {
+    const payload = {
+      imageUrl: data.file,
+      title: data.title,
+      content: data.content,
+      categoryId: data.category,
+    }
+    if (id?.[0]) {
+      await articlesEdit(payload, id?.[0])
+    } else {
+      await articlesAdd(payload)
+    }
   }
-  const [categoryOptions, setCategoryOptions] = useState<{ value: string; label: string }[]>([])
-  const fetchArticlesDetail = useArticlesState((state) => state.articlesDetail)
-  const article = useArticlesState((state) => state.articlesDataDetail)
   useEffect(() => {
-    fetchCategories(1, '', 100)
-  }, [fetchCategories])
+    categoryList(1, '', 100)
+  }, [categoryList])
 
   useEffect(() => {
     setCategoryOptions(
       categoryDataList.map((item) => ({
-        value: item.name,
+        value: item.id,
         label: item.name,
       }))
     )
   }, [categoryDataList])
 
   useEffect(() => {
-    const slugId = id?.[0]
-    if (!slugId) {
+    if (!id?.[0]) {
       reset({
         title: '',
         category: '',
         content: '',
-        file: undefined,
       })
       setResetKey((prev) => prev + 1)
     } else if (!fetched.current) {
       fetched.current = true
-      fetchArticlesDetail(slugId)
+      articlesDetail(id?.[0])
     }
-  }, [id, fetchArticlesDetail, reset])
+  }, [id, articlesDetail, reset])
 
   useEffect(() => {
-    if (article) {
+    if (articlesDataDetail) {
       reset({
-        title: article.title ?? '',
-        category: article.category.name ?? '',
-        content: id?.[0] ? article.content : '',
-        file: id?.[0] ? article.imageUrl : undefined,
+        title: articlesDataDetail.title ?? '',
+        category: articlesDataDetail.categoryId ?? '',
+        content: id?.[0] ? articlesDataDetail.content : '',
+        file: id?.[0] ? articlesDataDetail.imageUrl ?? '' : '',
       })
     }
-  }, [article, reset])
+  }, [articlesDataDetail, reset])
   return (
     <div className="bg-[#f9fafb] border border-[#e3e8ef] rounded-xl pb-10">
       <div className="p-6">
@@ -126,13 +122,21 @@ export default function CreateArticlePage() {
         </div>
         <div className="mt-5">
           <form onSubmit={handleSubmit(onSubmit)} className="">
-            <FileUpload
-              label="Thumbnails"
-              register={register('file')}
-              error={errors.file?.message as string}
-              initialPreviewUrl={article?.imageUrl}
-              resetKey={resetKey}
+            <Controller
+              name="file"
+              control={control}
+              render={({ field }) => (
+                <FileUpload
+                  label="Thumbnails"
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.file?.message as string}
+                  resetKey={resetKey}
+                  initialPreviewUrl={articlesDataDetail?.imageUrl}
+                />
+              )}
             />
+
             <Input
               label="Title"
               name="title"

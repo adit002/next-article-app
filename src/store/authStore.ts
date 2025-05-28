@@ -2,17 +2,6 @@ import { create } from 'zustand'
 import api from '@/lib/axios'
 import { AxiosError } from 'axios'
 
-interface AuthState {
-  user: { id: string; username: string; role: string } | null
-  loading: boolean
-  error: string | null
-  message: string | null
-  login: (payload: { username: string; password: string }) => Promise<void>
-  registerUser: (payload: { username: string; password: string; role: string }) => Promise<void>
-  logout: () => void
-  setUser: (user: AuthState['user']) => void
-}
-
 export const useAuthStore = create<AuthState>((set) => ({
   loading: false,
   error: null,
