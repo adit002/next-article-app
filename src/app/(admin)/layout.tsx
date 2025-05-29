@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getUser } from '@/lib/getUser'
-import ClientLayout from './ClientLayout'
+import ClientLayout from './clientLayout'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
@@ -11,7 +11,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
   const user = await getUser()
   if (user?.role !== 'Admin') {
-    redirect('/login')
+    redirect('/home')
   }
 
   return <ClientLayout user={user}>{children}</ClientLayout>

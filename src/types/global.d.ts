@@ -7,8 +7,8 @@ interface ArticleList {
   imageUrl: string
   createdAt: string
   updatedAt: string
-  category: Category
-  user: User
+  category?: Category
+  user?: User
 }
 
 interface Category {
@@ -42,8 +42,9 @@ interface ArticlesState {
   articlesAdd: (payload: AddEditArticles) => Promise<void>
   articlesEdit: (payload: AddEditArticles, id: string) => Promise<void>
   articlesDelete: (id: string) => Promise<void>
-  articlesList: (page: number, search: string) => Promise<void>
+  articlesList: (page: number, search?: string, category?: string, limit?: number) => Promise<void>
   articlesDetail: (id: string) => Promise<void>
+  setDataDetail: (payload: ArticleList) => Promise<void>
 }
 
 interface UserData {
@@ -68,6 +69,7 @@ interface AuthState {
   loading: boolean
   error: string | null
   message: string | null
+  role: string | null
   login: (payload: UserLogin) => Promise<void>
   registerUser: (payload: UserRegister) => Promise<void>
   logout: () => void

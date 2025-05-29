@@ -14,6 +14,7 @@ import { useParams } from 'next/navigation'
 import { useArticlesState } from '@/store/articlesStore'
 import { useEffect, useRef, useState } from 'react'
 import { useCategoriesState } from '@/store/categoryStore'
+import Toast from '@/components/common/Toast'
 
 const schema = z.object({
   file: z
@@ -44,11 +45,15 @@ type FormData = z.infer<typeof schema>
 export default function CreateArticlePage() {
   const [categoryOptions, setCategoryOptions] = useState<OptionSelection[]>([])
   const [resetKey, setResetKey] = useState(0)
+  const [typeButton, setTypeButton] = useState('')
   const params = useParams()
   const id = params.slug as string[]
   const fetched = useRef(false)
   const { categoryDataList, categoryList } = useCategoriesState()
-  const { articlesDetail, articlesAdd, articlesEdit, articlesDataDetail } = useArticlesState()
+  const { articlesDetail, articlesAdd, articlesEdit, articlesDataDetail, setDataDetail } =
+    useArticlesState()
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const getState = useArticlesState.getState
   const router = useRouter()
   const {
     control,
@@ -67,12 +72,39 @@ export default function CreateArticlePage() {
       content: data.content,
       categoryId: data.category,
     }
-    if (id?.[0]) {
-      await articlesEdit(payload, id?.[0])
-    } else {
-      await articlesAdd(payload)
+
+    if (typeButton == 'upload') {
+      if (id?.[0]) {
+        await articlesEdit(payload, id?.[0])
+      } else {
+        await articlesAdd(payload)
+      }
+      toastMessageSetting()
+      resetForm()
+      router.push('/articles')
+    } else if (typeButton == 'preview') {
+      setDataDetail({ id: '', userId: '', createdAt: '', updatedAt: '', ...payload })
+      router.push('/detailarticle/preview')
     }
   }
+
+  const toastMessageSetting = () => {
+    const { error, message } = getState()
+    setToast({
+      type: error ? 'error' : 'success',
+      message: error ?? message ?? 'Something went wrong',
+    })
+  }
+
+  const resetForm = () => {
+    reset({
+      title: '',
+      category: '',
+      content: '',
+    })
+    setResetKey((prev) => prev + 1)
+  }
+
   useEffect(() => {
     categoryList(1, '', 100)
   }, [categoryList])
@@ -88,12 +120,7 @@ export default function CreateArticlePage() {
 
   useEffect(() => {
     if (!id?.[0]) {
-      reset({
-        title: '',
-        category: '',
-        content: '',
-      })
-      setResetKey((prev) => prev + 1)
+      resetForm()
     } else if (!fetched.current) {
       fetched.current = true
       articlesDetail(id?.[0])
@@ -118,7 +145,7 @@ export default function CreateArticlePage() {
           onClick={() => router.push('/articles')}
         >
           <MoveLeft />
-          Create Articles
+          {`${id?.[0] ? 'Edit' : 'Create'} Article`}
         </div>
         <div className="mt-5">
           <form onSubmit={handleSubmit(onSubmit)} className="">
@@ -167,16 +194,24 @@ export default function CreateArticlePage() {
               <Button variant="white" type="button" onClick={() => router.push('/articles')}>
                 Cancel
               </Button>
-              <Button variant="secondary" type="submit">
+              <Button variant="secondary" type="submit" onClick={() => setTypeButton('preview')}>
                 Preview
               </Button>
-              <Button variant="primary" type="submit">
+              <Button variant="primary" type="submit" onClick={() => setTypeButton('upload')}>
                 Upload
               </Button>
             </div>
           </form>
         </div>
       </div>
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onDismiss={() => setToast(null)}
+          duration={3000}
+        />
+      )}
     </div>
   )
 }

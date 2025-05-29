@@ -40,10 +40,14 @@ export const useArticlesState = create<ArticlesState>((set) => ({
       set({ error: err.response?.data?.error || 'Delete articles failed', loading: false })
     }
   },
-  articlesList: async (page: number, search: string) => {
+  articlesList: async (page: number, search?: string, category?: string, limit?: number) => {
     set({ loading: true, error: null, message: null })
     try {
-      const res = await api.get(`/articles?page=${page}&search=${encodeURIComponent(search)}`)
+      const res = await api.get(
+        `/articles?page=${page}&search=${encodeURIComponent(search ?? '')}&category=${
+          category ?? ''
+        }&limit=${limit ?? 10}`
+      )
       set({
         loading: false,
         message: res?.data?.message || 'Get list articles success',
@@ -69,5 +73,8 @@ export const useArticlesState = create<ArticlesState>((set) => ({
       const err = error as AxiosError<{ error: string }>
       set({ error: err.response?.data?.error || 'Get detail articles failed', loading: false })
     }
+  },
+  setDataDetail: async (payload) => {
+    set({ loading: true, error: null, message: null, articlesDataDetail: payload })
   },
 }))

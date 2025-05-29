@@ -7,14 +7,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   error: null,
   message: null,
   user: null,
+  role: null,
   setUser: (user) => set({ user }),
-
   login: async (payload) => {
     set({ loading: true, error: null, message: null })
     try {
       const res = await api.post('/auth/login', payload)
       document.cookie = `token=${res.data.token}; path=/; SameSite=Lax`
-      set({ loading: false, message: res?.data?.message || 'Login success' })
+      set({ loading: false, message: res?.data?.message || 'Login success', role: res.data.role })
     } catch (error: unknown) {
       const err = error as AxiosError<{ error: string }>
       set({ error: err.response?.data?.error || 'Login failed', loading: false })
@@ -33,7 +33,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
-    set({ loading: true, error: null, message: null })
+    set({ loading: true, error: null, message: null, role: null })
     document.cookie = 'token=; Max-Age=0; path=/;'
     setTimeout(() => {
       set({

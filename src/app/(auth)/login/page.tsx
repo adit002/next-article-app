@@ -38,12 +38,12 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormData) => {
     await login(data)
-    const { error, message } = getState()
+    const { error, message, role } = getState()
     setToast({
       type: error ? 'error' : 'success',
       message: error ?? message ?? 'Something went wrong',
     })
-    router.push('/articles')
+    router.push(role === 'Admin' ? '/articles' : '/home')
   }
 
   return (

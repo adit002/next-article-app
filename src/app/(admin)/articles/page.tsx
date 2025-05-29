@@ -25,6 +25,7 @@ export default function ArticlePage() {
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const searchParams = useSearchParams()
   const [search, setSearch] = useState('')
+  const [categorySelected, setCategorySelected] = useState('')
   const [dataDetailArticles, setDataDetailArticles] = useState<ArticleList>()
   const [debouncedSearch, setDebouncedSearch] = useState(search)
   const page = Number(searchParams.get('page')) || 1
@@ -44,6 +45,10 @@ export default function ArticlePage() {
 
   const clickAction = (data: ArticleList) => {
     setDataDetailArticles(data)
+  }
+
+  const changeCategory = (data: string) => {
+    setCategorySelected(data)
   }
 
   const toastMessageSetting = () => {
@@ -74,16 +79,9 @@ export default function ArticlePage() {
   }, [categoryDataList])
 
   useEffect(() => {
-    const fetchData = async () => {
-      await Promise.all([
-        articlesList(page, debouncedSearch),
-        categoryList(page, debouncedSearch, 100),
-      ])
-      toastMessageSetting()
-    }
-
-    fetchData()
-  }, [articlesList, categoryList, page, debouncedSearch])
+    articlesList(page, debouncedSearch, categorySelected)
+    categoryList(page, debouncedSearch, 100)
+  }, [articlesList, categoryList, page, debouncedSearch, categorySelected])
 
   return (
     <div className="bg-[#f9fafb] border border-[#e3e8ef] rounded-xl pb-10">
@@ -92,7 +90,11 @@ export default function ArticlePage() {
       </div>
       <div className="p-6 border-b border-[#e3e8ef] flex justify-between">
         <div className="flex gap-3">
-          <Select name="category" options={categoryOptions} />
+          <Select
+            name="category"
+            options={categoryOptions}
+            onChange={(val) => changeCategory(val)}
+          />
           <Input
             name="search"
             type="search"
@@ -132,15 +134,15 @@ export default function ArticlePage() {
               className="flex place-self-center rounded-md"
             />
             <h6>{article.title}</h6>
-            <h6>{article.category.name}</h6>
+            <h6>{article?.category?.name}</h6>
             <h6>{formatDateTime(article.createdAt)}</h6>
             <div className="flex gap-3 justify-center">
-              <a
-                onClick={() => clickAction(article)}
-                className="text-blue-600 font-medium cursor-pointer underline"
+              <Link
+                href={`/detailarticle/${article.id}`}
+                className="text-blue-600 font-medium underline"
               >
                 Preview
-              </a>
+              </Link>
               <Link
                 href={`/articles/create/${article.id}`}
                 className="text-blue-600 font-medium underline"

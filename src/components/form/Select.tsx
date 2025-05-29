@@ -9,9 +9,18 @@ type SelectProps = {
   register?: UseFormRegisterReturn
   error?: string
   className?: string
+  onChange?: (value: string) => void
 }
 
-export default function Select({ label, name, options, register, error, className }: SelectProps) {
+export default function Select({
+  label,
+  name,
+  options,
+  register,
+  error,
+  className,
+  onChange,
+}: SelectProps) {
   return (
     <div className={className}>
       {label && (
@@ -26,6 +35,10 @@ export default function Select({ label, name, options, register, error, classNam
           className={`bg-white appearance-none w-full px-4 py-2 pr-10 rounded-md border ${
             error ? 'border-red-500' : 'border-gray-300'
           } focus:outline-none `}
+          onChange={(e) => {
+            register?.onChange?.(e)
+            onChange?.(e.target.value)
+          }}
         >
           <option value="">Please select</option>
           {options.map((opt) => (

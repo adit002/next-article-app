@@ -87,7 +87,7 @@ export default function CategoryPage() {
     }
 
     toastMessageSetting()
-    await categoryList(page, debouncedSearch)
+    categoryList(page, debouncedSearch)
   }
 
   const toastMessageSetting = () => {
@@ -109,12 +109,7 @@ export default function CategoryPage() {
   }, [search])
 
   useEffect(() => {
-    const fetchData = async () => {
-      await categoryList(page, debouncedSearch)
-      toastMessageSetting()
-    }
-
-    fetchData()
+    categoryList(page, debouncedSearch)
   }, [categoryList, page, debouncedSearch])
 
   return (
