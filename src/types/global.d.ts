@@ -112,3 +112,7 @@ interface OptionSelection {
   value: string
   label: string
 }
+
+interface CustomRequestConfig extends InternalAxiosRequestConfig {
+  isMultipart?: boolean
+}
