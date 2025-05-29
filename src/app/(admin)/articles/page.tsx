@@ -134,7 +134,7 @@ export default function ArticlePage() {
               className="flex place-self-center rounded-md"
             />
             <h6>{article.title}</h6>
-            <h6>{article?.category?.name}</h6>
+            <h6>{article.category?.name}</h6>
             <h6>{formatDateTime(article.createdAt)}</h6>
             <div className="flex gap-3 justify-center">
               <Link

@@ -10,6 +10,7 @@ export const useArticlesState = create<ArticlesState>((set) => ({
   articlesDataListPage: 0,
   articlesDataListData: 0,
   articlesDataDetail: undefined,
+  filterArticles: undefined,
   articlesAdd: async (payload) => {
     set({ loading: true, error: null, message: null })
     try {
@@ -76,5 +77,8 @@ export const useArticlesState = create<ArticlesState>((set) => ({
   },
   setDataDetail: async (payload) => {
     set({ loading: true, error: null, message: null, articlesDataDetail: payload })
+  },
+  setAttributeFilter: async (payload) => {
+    set({ loading: true, error: null, message: null, filterArticles: payload })
   },
 }))

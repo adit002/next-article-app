@@ -31,10 +31,16 @@ interface AddEditArticles {
   categoryId: string
 }
 
+interface FilterArticles {
+  category: string
+  search: string
+}
+
 interface ArticlesState {
   loading: boolean
   error: string | null
   message: string | null
+  filterArticles: FilterArticles | undefined
   articlesDataList: ArticleList[]
   articlesDataDetail: ArticleList | undefined
   articlesDataListPage: number
@@ -45,6 +51,7 @@ interface ArticlesState {
   articlesList: (page: number, search?: string, category?: string, limit?: number) => Promise<void>
   articlesDetail: (id: string) => Promise<void>
   setDataDetail: (payload: ArticleList) => Promise<void>
+  setAttributeFilter: (payload: FilterArticles) => Promise<void>
 }
 
 interface UserData {

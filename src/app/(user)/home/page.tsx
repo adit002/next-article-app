@@ -12,12 +12,17 @@ export default function HomePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const page = Number(searchParams.get('page')) || 1
-  const { articlesDataList, articlesDataListPage, articlesDataListData, articlesList } =
-    useArticlesState()
+  const {
+    articlesDataList,
+    articlesDataListPage,
+    articlesDataListData,
+    articlesList,
+    filterArticles,
+  } = useArticlesState()
 
   useEffect(() => {
-    articlesList(page)
-  }, [articlesList, page])
+    articlesList(page, filterArticles?.search, filterArticles?.category)
+  }, [articlesList, page, filterArticles])
 
   return (
     <div className="px-4 min-h-screen">

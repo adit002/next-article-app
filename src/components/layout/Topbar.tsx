@@ -10,6 +10,10 @@ import Logo from '@/app/logo.png'
 import { LogOut } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import ConfirmModal from '../modal/Confirm'
+import Input from '../form/Input'
+import Select from '../form/Select'
+import { useCategoriesState } from '@/store/categoryStore'
+import { useArticlesState } from '@/store/articlesStore'
 
 export default function Topbar() {
   const { user } = useAuthStore()
@@ -19,6 +23,10 @@ export default function Topbar() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { logout, loading } = useAuthStore()
   const [isOpen, setIsOpen] = useState(false)
+  const [categoryOptions, setCategoryOptions] = useState<OptionSelection[]>([])
+  const { categoryDataList, categoryList } = useCategoriesState()
+  const [search, setSearch] = useState('')
+  const { setAttributeFilter } = useArticlesState()
 
   const handleConfirm = async () => {
     await logout()
@@ -34,6 +42,28 @@ export default function Topbar() {
       toggle()
     }
   }
+
+  useEffect(() => {
+    setCategoryOptions(
+      categoryDataList.map((item) => ({
+        value: item.name,
+        label: item.name,
+      }))
+    )
+  }, [categoryDataList])
+
+  useEffect(() => {
+    categoryList(1, '', 100)
+  }, [categoryList])
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setAttributeFilter({ category: '', search: search })
+    }, 500)
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [search])
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -155,6 +185,25 @@ export default function Topbar() {
               The Journal: Design Resources, <br /> Interviews, and Industry News
             </h1>
             <p className="text-base sm:text-lg mb-6">Your daily dose of design insights!</p>
+          </div>
+          <div className="flex justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 z-15 relative text-black bg-[#3B82F6] p-4 sm:p-2.5 rounded-2xl w-full sm:w-fit">
+              <Select
+                name="category"
+                options={categoryOptions}
+                className="w-full sm:w-auto"
+                onChange={(val) => setAttributeFilter({ category: val, search: '' })}
+              />
+              <Input
+                name="search"
+                type="search"
+                icon="search"
+                placeholder="Search by title"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full sm:w-auto"
+              />
+            </div>
           </div>
         </div>
       )}

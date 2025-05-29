@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import { useArticlesState } from '@/store/articlesStore'
 import { useEffect } from 'react'
 import { formatDate } from '@/utils/formatDate'
+import { redirect } from 'next/navigation'
 
 export default function DetailArticleDetail() {
   const { articlesDetail, articlesDataDetail, articlesList, articlesDataList } = useArticlesState()
@@ -14,6 +15,10 @@ export default function DetailArticleDetail() {
   useEffect(() => {
     if (id?.[0] !== 'preview') {
       articlesDetail(id?.[0])
+    } else {
+      if (!articlesDataDetail) {
+        redirect('/articles')
+      }
     }
     articlesList(1, '', '', 100)
   }, [id, articlesDetail])
