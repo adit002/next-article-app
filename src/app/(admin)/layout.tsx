@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getUser } from '@/lib/getUser'
-import ClientLayout from './clientLayout'
+import ClientLayout from './ClientLayout'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()

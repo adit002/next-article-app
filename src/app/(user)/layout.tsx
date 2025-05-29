@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import ClientLayout from './clientLayout'
+import ClientLayout from './ClientLayout'
 import { getUser } from '@/lib/getUser'
 
 export default async function UserLayout({ children }: { children: React.ReactNode }) {
