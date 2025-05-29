@@ -83,7 +83,13 @@ export default function CreateArticlePage() {
       resetForm()
       router.push('/articles')
     } else if (typeButton == 'preview') {
-      setDataDetail({ id: '', userId: '', createdAt: '', updatedAt: '', ...payload })
+      setDataDetail({
+        id: '',
+        userId: '',
+        createdAt: new Date().toString(),
+        updatedAt: '',
+        ...payload,
+      })
       router.push('/detailarticle/preview')
     }
   }

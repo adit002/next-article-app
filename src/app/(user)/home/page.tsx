@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useArticlesState } from '@/store/articlesStore'
 import { useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { formatDateTime } from '@/utils/formatDate'
+import { formatDate } from '@/utils/formatDate'
 import Pagination from '@/components/common/Pagination'
 import { useRouter } from 'next/navigation'
 
@@ -41,7 +41,7 @@ export default function HomePage() {
                   className="rounded-xl h-60 w-96 object-fill"
                 />
                 <div className="mt-4 space-y-3">
-                  <p className="text-sm text-gray-500">{formatDateTime(article.createdAt)}</p>
+                  <p className="text-sm text-gray-500">{formatDate(article.createdAt)}</p>
                   <h2 className="text-lg font-semibold text-gray-900">{article.title}</h2>
                   <div
                     dangerouslySetInnerHTML={{ __html: article.content.slice(0, 200) }}

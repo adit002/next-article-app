@@ -13,3 +13,14 @@ export function formatDateTime(dateStr: string): string {
     .replace(',', '')
     .replace('at', '')
 }
+
+export function formatDate(dateStr: string): string {
+  const date = new Date(dateStr)
+  return date
+    .toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: '2-digit',
+    })
+    .replace(',', '')
+}

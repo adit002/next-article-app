@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useArticlesState } from '@/store/articlesStore'
 import { useEffect } from 'react'
-import { formatDateTime } from '@/utils/formatDate'
+import { formatDate } from '@/utils/formatDate'
 
 export default function DetailArticleDetail() {
   const { articlesDetail, articlesDataDetail, articlesList, articlesDataList } = useArticlesState()
@@ -23,7 +23,7 @@ export default function DetailArticleDetail() {
       {articlesDataDetail && (
         <div className="max-w-5/6 mx-auto px-4 py-10 black">
           <div className="text-center text-sm text-gray-500 mb-3">
-            {formatDateTime(articlesDataDetail?.createdAt)} &nbsp; • &nbsp; Created by Admin
+            {formatDate(articlesDataDetail?.createdAt)} &nbsp; • &nbsp; Created by Admin
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6">
@@ -75,7 +75,7 @@ export default function DetailArticleDetail() {
                     className="rounded-xl h-60 w-96 object-fill"
                   />
                   <div className="mt-4 space-y-3">
-                    <p className="text-sm text-gray-500">{formatDateTime(article.createdAt)}</p>
+                    <p className="text-sm text-gray-500">{formatDate(article.createdAt)}</p>
                     <h2 className="text-lg font-semibold text-gray-900">{article.title}</h2>
                     <div
                       dangerouslySetInnerHTML={{ __html: article.content.slice(0, 200) }}
